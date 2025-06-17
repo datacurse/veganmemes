@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useSnapshot } from 'valtio';
@@ -8,7 +7,7 @@ import {
 } from '@/components/ui/input';
 import { useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
 export default function HomePage() {
   const snap = useSnapshot(store);
@@ -50,6 +49,13 @@ export default function HomePage() {
             <Button variant="secondary">Upload</Button>
           </DialogTrigger>
           <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Edit profile</DialogTitle>
+              <DialogDescription>
+                Make changes to your profile here. Click save when you&apos;re
+                done.
+              </DialogDescription>
+            </DialogHeader>
             <UploadForm />
           </DialogContent>
         </Dialog>
@@ -112,7 +118,3 @@ function UploadForm() {
 async function uploadFileMock(file: File): Promise<string> {
   return URL.createObjectURL(file);
 }
-
-export const getConfig = async () => ({
-  render: 'dynamic',
-} as const);

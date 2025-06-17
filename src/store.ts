@@ -15,7 +15,7 @@ export const store = proxy({
   showUploader: false,
   uploading: false,
 
-  user: null as { id: string; name: string } | null,
+  user: "hello",
 
   async search() {
     store.loading = true;

@@ -1,4 +1,4 @@
-import 'dotenv/config';
+"use server"
 import { Kysely, PostgresDialect, sql } from 'kysely'
 import pg from 'pg'
 import type { DB } from './types';
@@ -19,7 +19,7 @@ export const db = new Kysely<DB>({
 await db.schema
   .createTable('memes')
   .ifNotExists()
-  .addColumn('id', 'uuid', col => col.primaryKey())
+  .addColumn('id', 'bigserial', col => col.primaryKey())  // auto-increments
   .addColumn('image_url', 'text', col => col.notNull())
   .addColumn('ocr_text', 'text', col => col.notNull())
   .addColumn('uploader_id', 'text')
