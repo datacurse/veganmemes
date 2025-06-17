@@ -6,13 +6,16 @@
   "scripts": {
     "dev": "waku dev",
     "build": "waku build",
-    "start": "waku start"
+    "start": "waku start",
+    "migrate": "tsx scripts/migrate.ts",
+    "migrate:down": "tsx scripts/migrate.ts --down"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.14",
     "@radix-ui/react-slot": "^1.2.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "dotenv": "^16.5.0",
     "kysely": "^0.28.2",
     "lucide-react": "^0.516.0",
     "pg": "^8.16.0",
@@ -32,6 +35,7 @@
     "@types/react-dom": "19.1.6",
     "postcss": "8.5.4",
     "tailwindcss": "4.1.8",
+    "tsx": "^4.20.3",
     "typescript": "5.8.3"
   }
 }
