@@ -13,7 +13,8 @@ export interface DB {
 
 export interface MemeTable {
   id: Generated<number>
-  image_url: string
+  image_type: string
+  image_data: Uint8Array | Buffer
   ocr_text: string
   created_at: Generated<Date>
 }

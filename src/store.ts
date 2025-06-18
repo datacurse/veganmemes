@@ -1,60 +1,57 @@
-import { proxy } from 'valtio';
-import * as queries from '@/lib/queries';
-import type { Meme, NewMeme } from '@/lib/types';
+import { proxy } from 'valtio'
+import * as queries from '@/lib/queries'
+import type { ClientMeme } from '@/lib/queries'
 
 interface Page {
-  items: Meme[];
-  nextCursor: string | null;
+  items: ClientMeme[]
+  nextCursor: string | null
 }
 
 export const store = proxy({
   query: '',
   pages: [] as Page[],
   loading: false,
-
-  showUploader: false,
   uploading: false,
-
-  user: "hello",
-
-  async search() {
-    store.loading = true;
-    const { items, nextCursor } = await queries.listMemes(store.query, null);
-    store.pages = [{ items, nextCursor }];
-    store.loading = false;
-  },
-
-  async loadMore() {
-    const last = store.pages.at(-1);
-    if (!last?.nextCursor) return;
-    store.loading = true;
-    const { items, nextCursor } = await queries.listMemes(
-      store.query,
-      last.nextCursor,
-    );
-    store.pages.push({ items, nextCursor });
-    store.loading = false;
-  },
-
-  async upload(url: string, ocr: string) {
-    if (!store.user) throw new Error('not signed in');
-    store.uploading = true;
-
-    const optimistic: NewMeme = {
-      image_url: url,
-      ocr_text: ocr,
-    };
-    store.pages.unshift({ items: [optimistic], nextCursor: null });
-
-    try {
-      await queries.createMeme(optimistic);
-      await store.search();
-    } finally {
-      store.uploading = false;
-    }
-  },
 });
 
+
+export async function search() {
+  store.loading = true
+  try {
+    const { items, nextCursor } = await queries.listMemes(store.query, null)
+    store.pages = [{ items, nextCursor }]
+  } finally {
+    store.loading = false
+  }
+}
+
+export async function loadMore() {
+  const last = store.pages.at(-1)
+  if (!last?.nextCursor) return
+  store.loading = true
+  try {
+    const { items, nextCursor } = await queries.listMemes(store.query, last.nextCursor)
+    store.pages.push({ items, nextCursor })
+  } finally {
+    store.loading = false
+  }
+}
+
+export async function upload(file: File, ocr: string) {
+  store.uploading = true;
+  try {
+    const arrayBuffer = await file.arrayBuffer();
+    await queries.createMeme({
+      image_type: file.type,
+      image_data: new Uint8Array(arrayBuffer),
+      ocr_text: ocr.trim(),
+    });
+  } finally {
+    store.uploading = false;
+  }
+}
+
+
 export function selectAllMemes() {
-  return store.pages.flatMap(p => p.items);
+  return store.pages.flatMap((p) => p.items)
 }

@@ -16,17 +16,6 @@ export const db = new Kysely<DB>({
   dialect: new PostgresDialect({ pool })
 })
 
-await db.schema
-  .createTable('memes')
-  .ifNotExists()
-  .addColumn('id', 'bigserial', col => col.primaryKey())  // auto-increments
-  .addColumn('image_url', 'text', col => col.notNull())
-  .addColumn('ocr_text', 'text', col => col.notNull())
-  .addColumn('uploader_id', 'text')
-  .addColumn('created_at', 'timestamptz',
-    col => col.defaultTo(sql`now()`).notNull())
-  .execute()
-
 export async function closeDb() {
   await db.destroy()
 }
