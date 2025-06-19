@@ -2,11 +2,10 @@
 import { db } from './db'
 import type { NewMeme, MemeUpdate } from './types'
 
-// Helper type for client-side meme data
 export interface ClientMeme {
   id: number
   image_type: string
-  image_data: string // base64 string
+  image_data: string
   ocr_text: string
   created_at: Date
 }

@@ -12,6 +12,8 @@ export const store = proxy({
   pages: [] as Page[],
   loading: false,
   uploading: false,
+  uploadFile: null as File | null,
+  uploadText: '',
 });
 
 
