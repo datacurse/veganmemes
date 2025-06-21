@@ -8,19 +8,22 @@
     "build": "waku build",
     "start": "waku start",
     "migrate": "tsx scripts/migrate.ts",
-    "migrate:down": "tsx scripts/migrate.ts --down"
+    "migrate:down": "tsx scripts/migrate.ts --down",
+    "convert-images": "tsx scripts/convertImagesToPng.ts"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.14",
     "@radix-ui/react-slot": "^1.2.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "dotenv": "^16.5.0",
     "kysely": "^0.28.2",
     "lucide-react": "^0.516.0",
     "pg": "^8.16.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-server-dom-webpack": "19.1.0",
+    "sonner": "^2.0.5",
     "tailwind-merge": "^3.3.1",
     "tw-animate-css": "^1.3.4",
     "valtio": "^2.1.5",
@@ -33,6 +36,7 @@
     "@types/react": "19.1.6",
     "@types/react-dom": "19.1.6",
     "postcss": "8.5.4",
+    "sharp": "^0.34.2",
     "tailwindcss": "4.1.8",
     "typescript": "5.8.3"
   }

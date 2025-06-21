@@ -6,6 +6,7 @@ import { useEffect, useRef } from "react";
 import { SearchBar } from "@/components/SearchBar";
 import { UploadDialog } from "@/components/UploadDialog";
 import { MasonryGrid } from "@/components/MasonryGrid";
+import { Toaster } from "@/components/ui/sonner";
 
 export default function HomePage() {
   const snap = useSnapshot(store);
@@ -57,6 +58,7 @@ export default function HomePage() {
       )}
 
       {snap.pages.at(-1)?.nextCursor && !snap.uploading && <div ref={sentinelRef} className="h-10" />}
+      <Toaster />
     </div>
   );
 }

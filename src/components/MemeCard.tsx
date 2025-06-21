@@ -1,48 +1,79 @@
-// File: app/components/MemeCard.tsx
 "use client";
 
-import { ClientMeme } from "@/lib/queries";
+import { Download, Copy } from "lucide-react";
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { MemeDialog } from "./MemeDialog";
+import { toast } from "sonner";
+import { ClientMeme } from "@/lib/types";
 
+export function MemeCard({ meme }: { meme: ClientMeme }) {
+  const [dialogOpen, setDialogOpen] = useState(false);
 
-interface MemeCardProps {
-  meme: ClientMeme;
-}
+  const handleDownload = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      const link = document.createElement("a");
+      link.href = `data:image/png;base64,${meme.image_data}`;
+      link.download = `veganmemes-${meme.id}.png`;
+      link.click();
+    } catch (err) {
+      toast.error("Failed to download image");
+    }
+  };
 
-export function MemeCard({ meme }: MemeCardProps) {
-  const [loaded, setLoaded] = useState(false);
-  const [hovered, setHovered] = useState(false);
+  const handleCopy = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      const blob = await fetch(`data:image/png;base64,${meme.image_data}`).then(r => r.blob());
+      await navigator.clipboard.write([
+        new ClipboardItem({ "image/png": blob })
+      ]);
+      toast.success("Image copied to clipboard");
+    } catch (err) {
+      toast.error("Failed to copy image");
+    }
+  };
 
   return (
-    <div
-      className="group relative overflow-hidden rounded-2xl bg-muted transition-all duration-300 hover:shadow-lg hover:shadow-black/10"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
-      <img
-        src={`data:${meme.image_type};base64,${meme.image_data}`}
-        alt={meme.ocr_text.slice(0, 100)}
-        className={`w-full h-auto transition-all duration-500 ${loaded ? "opacity-100" : "opacity-0"
-          } ${hovered ? "scale-105" : "scale-100"}`}
-        onLoad={() => setLoaded(true)}
-        loading="lazy"
-      />
-
-      {/* hover overlay */}
+    <>
       <div
-        className={`absolute inset-0 bg-black/40 transition-opacity duration-300 ${hovered ? "opacity-100" : "opacity-0"
-          }`}
+        className="group relative overflow-hidden rounded-2xl bg-muted transition-shadow hover:shadow-lg hover:shadow-black/10 cursor-pointer"
+        onClick={() => setDialogOpen(true)}
       >
-        <div className="absolute bottom-0 left-0 right-0 p-4">
-          <p className="text-white text-sm font-medium line-clamp-3">{meme.ocr_text}</p>
-          <p className="text-white/70 text-xs mt-1">
-            {new Date(meme.created_at).toLocaleDateString()}
-          </p>
+        <img
+          src={`data:image/png;base64,${meme.image_data}`}
+          alt={meme.ocr_text.slice(0, 100)}
+          className="w-full h-auto"
+          loading="lazy"
+        />
+
+        {/* Hover buttons */}
+        <div className="absolute top-2 right-2 flex gap-2 opacity-0 transition-opacity group-hover:opacity-100">
+          <Button
+            size="icon"
+            variant="secondary"
+            className="h-8 w-8 bg-background/80 backdrop-blur-sm hover:bg-background"
+            onClick={handleCopy}
+          >
+            <Copy className="h-4 w-4" />
+          </Button>
+          <Button
+            size="icon"
+            variant="secondary"
+            className="h-8 w-8 bg-background/80 backdrop-blur-sm hover:bg-background"
+            onClick={handleDownload}
+          >
+            <Download className="h-4 w-4" />
+          </Button>
         </div>
       </div>
 
-      {/* skeleton while loading */}
-      {!loaded && <div className="absolute inset-0 bg-muted animate-pulse" />}
-    </div>
+      <MemeDialog
+        meme={meme}
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+      />
+    </>
   );
 }

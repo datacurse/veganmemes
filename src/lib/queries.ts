@@ -1,19 +1,12 @@
 "use server"
 import { db } from './db'
-import type { NewMeme, MemeUpdate } from './types'
-
-export interface ClientMeme {
-  id: number
-  image_type: string
-  image_data: string
-  ocr_text: string
-  created_at: Date
-}
+import sharp from 'sharp'
+import { ClientMeme } from './types';
 
 export async function listMemes(text: string, cursor: string | null) {
   const query = db
     .selectFrom('memes')
-    .select(['id', 'image_type', 'image_data', 'ocr_text', 'created_at'])
+    .select(['id', 'image_data', 'ocr_text', 'created_at'])
     .where('ocr_text', 'ilike', `%${text}%`)
     .orderBy('created_at', 'desc')
     .limit(30);
@@ -34,31 +27,15 @@ export async function listMemes(text: string, cursor: string | null) {
   return { items: clientItems, nextCursor };
 }
 
-export async function createMeme(newMeme: NewMeme) {
-  const imageData = newMeme.image_data instanceof Uint8Array
-    ? Buffer.from(newMeme.image_data)
-    : newMeme.image_data;
-
+export async function createMeme(imageBuffer: Buffer, ocrText: string) {
+  const pngBuffer = await sharp(imageBuffer)
+    .png()
+    .toBuffer();
   await db
     .insertInto('memes')
     .values({
-      ...newMeme,
-      image_data: imageData
+      image_data: pngBuffer,
+      ocr_text: ocrText
     })
-    .execute()
-}
-
-export async function updateMeme(id: number, memeUpdate: MemeUpdate) {
-  await db
-    .updateTable('memes')
-    .set(memeUpdate)
-    .where('id', '=', id)
-    .execute()
-}
-
-export async function deleteMeme(id: number) {
-  await db
-    .deleteFrom('memes')
-    .where('id', '=', id)
     .execute()
 }

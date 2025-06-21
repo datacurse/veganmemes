@@ -13,10 +13,16 @@ export interface DB {
 
 export interface MemeTable {
   id: Generated<number>
-  image_type: string
-  image_data: Uint8Array | Buffer
+  image_data: Buffer
   ocr_text: string
   created_at: Generated<Date>
+}
+
+export interface ClientMeme {
+  id: number
+  image_data: string
+  ocr_text: string
+  created_at: Date
 }
 
 export type Meme = Selectable<MemeTable>

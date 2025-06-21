@@ -1,5 +1,4 @@
-import 'dotenv/config';
-import { promises as fs } from 'fs';
+import 'dotenv/config';  // Add this line at the very top
 import path from 'path';
 import { fileURLToPath } from 'url';
 import pg from 'pg';
@@ -17,6 +16,12 @@ const __dirname = path.dirname(__filename);
 // ---------------------------------------------------------
 
 async function migrateToLatest() {
+  // You might want to add a check here
+  if (!process.env.DATABASE_URL) {
+    console.error('❌ DATABASE_URL environment variable is not set');
+    process.exit(1);
+  }
+
   const db = new Kysely<DB>({
     dialect: new PostgresDialect({
       pool: new pg.Pool({ connectionString: process.env.DATABASE_URL }),
