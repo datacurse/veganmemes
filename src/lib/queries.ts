@@ -49,6 +49,7 @@ export async function listMemes(
   }
 
   const items = await query.execute();
+  console.log(items.map(item => item.id))
 
   // Get liked meme IDs for the current user if logged in
   let likedMemeIds = new Set<number>();
@@ -62,6 +63,7 @@ export async function listMemes(
 
     likedMemeIds = new Set(likedMemes.map(l => l.meme_id));
   }
+  console.log(likedMemeIds)
 
   const clientItems: ClientMeme[] = items.map(item => ({
     id: item.id,
@@ -72,6 +74,8 @@ export async function listMemes(
     like_count: Number(item.like_count || 0),
     is_liked: likedMemeIds.has(item.id)
   }));
+  console.log(clientItems.map(item => item.id))
+  console.log(clientItems.map(item => item.is_liked))
 
   const lastItem = items[items.length - 1];
   const nextCursor = items.length === 30 && lastItem?.created_at ? lastItem.created_at.toISOString() : null;

@@ -7,8 +7,11 @@
     "dev": "waku dev",
     "build": "waku build",
     "start": "waku start",
-    "migrate": "tsx scripts/migrate.ts",
-    "migrate:down": "tsx scripts/migrate.ts --down",
+    "kysely": "kysely",
+    "db:migrate": "npm run kysely migrate",
+    "db:migrate:make": "npm run kysely migrate make",
+    "db:rollback": "npm run kysely migrate rollback --all",
+    "db:seed": "npm run kysely seed run",
     "convert-images": "tsx scripts/convertImagesToPng.ts"
   },
   "dependencies": {
@@ -37,6 +40,7 @@
     "@tailwindcss/postcss": "4.1.8",
     "@types/react": "19.1.6",
     "@types/react-dom": "19.1.6",
+    "kysely-ctl": "^0.13.1",
     "postcss": "8.5.4",
     "sharp": "^0.34.2",
     "tailwindcss": "4.1.8",

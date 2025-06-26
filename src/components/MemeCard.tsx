@@ -12,6 +12,7 @@ import { likeMeme, unlikeMeme } from "@/lib/queries";
 export function MemeCard({ meme }: { meme: ClientMeme }) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isLiked, setIsLiked] = useState(meme.is_liked || false);
+  console.log(isLiked)
   const [likeCount, setLikeCount] = useState(meme.like_count || 0);
   const { data: session } = authClient.useSession();
 
