@@ -7,6 +7,7 @@ import { SearchBar } from "@/components/SearchBar";
 import { UploadDialog } from "@/components/UploadDialog";
 import { MasonryGrid } from "@/components/MasonryGrid";
 import { Toaster } from "@/components/ui/sonner";
+import { NavBar } from "@/components/NavBar";
 
 export default function HomePage() {
   const snap = useSnapshot(store);
@@ -38,8 +39,11 @@ export default function HomePage() {
       {/* Header */}
       <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center gap-3">
-          <SearchBar />
-          <UploadDialog />
+          <div className="flex items-center gap-3 flex-grow">
+            <SearchBar />
+            <UploadDialog />
+          </div>
+          <NavBar />
         </div>
       </div>
 

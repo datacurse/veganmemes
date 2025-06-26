@@ -1,6 +1,5 @@
 import 'dotenv/config';
 import { betterAuth } from "better-auth";
-import { db } from "./db";
 import { Pool } from 'pg';
 
 if (!process.env.BETTER_AUTH_SECRET) {
@@ -12,8 +11,15 @@ export const auth = betterAuth({
     connectionString: process.env.DATABASE_URL,
     max: 10
   }),
+  trustedOrigins: ['http://localhost:3000'],
   secret: process.env.BETTER_AUTH_SECRET,
-  emailAndPassword: { enabled: true },
+  emailAndPassword: { enabled: false },
+  socialProviders: {
+    github: {
+      clientId: process.env.GITHUB_CLIENT_ID as string,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
+    }
+  }
 });
 
 export type Auth = typeof auth;
