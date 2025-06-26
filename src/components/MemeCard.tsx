@@ -23,7 +23,7 @@ export function MemeCard({ meme }: { meme: ClientMeme }) {
       link.download = `veganmemes-${meme.id}.png`;
       link.click();
       toast.success("Image downloaded");
-    } catch (err) {
+    } catch {
       toast.error("Failed to download image");
     }
   };
@@ -32,11 +32,9 @@ export function MemeCard({ meme }: { meme: ClientMeme }) {
     e.stopPropagation();
     try {
       const blob = await fetch(`data:image/png;base64,${meme.image_data}`).then(r => r.blob());
-      await navigator.clipboard.write([
-        new ClipboardItem({ "image/png": blob })
-      ]);
+      await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
       toast.success("Image copied to clipboard");
-    } catch (err) {
+    } catch {
       toast.error("Failed to copy image");
     }
   };
@@ -60,9 +58,8 @@ export function MemeCard({ meme }: { meme: ClientMeme }) {
         setLikeCount(prev => prev + 1);
       }
     } catch (err: any) {
-      console.log(err.message)
-      // Only show error if it's not an expected error
-      if (!err.message?.includes("Already liked this meme") || !err.message?.includes("Haven't liked")) {
+      if (!err.message?.includes("Already liked this meme") &&
+        !err.message?.includes("Haven't liked")) {
         toast.error("Failed to update like");
       }
     }
@@ -83,7 +80,7 @@ export function MemeCard({ meme }: { meme: ClientMeme }) {
 
         {/* Bottom overlay with buttons */}
         <div className="absolute bottom-0 left-0 right-0 flex justify-between items-center p-2 bg-gradient-to-t from-black/50 to-transparent opacity-0 transition-opacity group-hover:opacity-100">
-          {/* Left side - Copy and Download */}
+          {/* Left side – Copy and Download */}
           <div className="flex gap-1">
             <Button
               size="icon"
@@ -103,29 +100,27 @@ export function MemeCard({ meme }: { meme: ClientMeme }) {
             </Button>
           </div>
 
-          {/* Right side - Like button */}
-          <Button
-            size="icon"
-            variant="ghost"
-            className="h-8 w-8 text-white hover:bg-white/20"
-            onClick={handleLike}
-          >
-            <Heart
-              className={`h-4 w-4 transition-colors ${isLiked ? 'fill-red-500 text-red-500' : ''
-                }`}
-            />
+          {/* Right side – Like count + Like button */}
+          <div className="flex items-center gap-1">
             {likeCount > 0 && (
-              <span className="ml-1 text-xs">{likeCount}</span>
+              <span className="text-xs text-white">{likeCount}</span>
             )}
-          </Button>
+            <Button
+              size="icon"
+              variant="ghost"
+              className="h-8 w-8 text-white hover:bg-white/20"
+              onClick={handleLike}
+            >
+              <Heart
+                className={`h-4 w-4 transition-colors ${isLiked ? "fill-red-500 text-red-500" : ""
+                  }`}
+              />
+            </Button>
+          </div>
         </div>
       </div>
 
-      <MemeDialog
-        meme={meme}
-        open={dialogOpen}
-        onOpenChange={setDialogOpen}
-      />
+      <MemeDialog meme={meme} open={dialogOpen} onOpenChange={setDialogOpen} />
     </>
   );
 }
