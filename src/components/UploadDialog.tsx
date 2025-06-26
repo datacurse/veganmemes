@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useId } from "react";
 import { useSnapshot } from "valtio";
 import { store, upload } from "@/store";
 import { Button } from "@/components/ui/button";
@@ -35,7 +35,7 @@ export function UploadDialog() {
   return (
     <Dialog open={open} onOpenChange={(v) => !snap.uploading && setOpen(v)}>
       <DialogTrigger asChild>
-        <Button variant="secondary">Upload</Button>
+        <Button variant="secondary" aria-controls="radix-«R3ek»">Upload</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
