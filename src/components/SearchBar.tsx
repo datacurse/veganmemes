@@ -3,7 +3,7 @@
 import { Heart, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { store, search } from "@/store";
+import { store } from "@/store";
 import { useSnapshot } from "valtio";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
@@ -20,7 +20,7 @@ export function SearchBar() {
 
     // Toggle between "all" and "liked"
     store.filter = store.filter === "liked" ? "all" : "liked";
-    search();
+    // search();
   };
 
   const handleSearch = () => {
@@ -28,7 +28,7 @@ export function SearchBar() {
     if (store.filter === "liked" && snap.query !== store.query) {
       store.filter = "all";
     }
-    search();
+    // search();
   };
 
   return (
@@ -60,7 +60,7 @@ export function SearchBar() {
         </Button>
       </div>
 
-      <Button onClick={handleSearch} disabled={snap.loading}>
+      <Button onClick={handleSearch} disabled={false}>
         <Search className="h-4 w-4 mr-2" />
         Search
       </Button>

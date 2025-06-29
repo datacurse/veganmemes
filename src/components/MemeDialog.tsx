@@ -7,42 +7,16 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { store } from "@/store";
+import { useCopyImage, useDownloadImage } from "@/hooks";
 import { ClientMeme } from "@/lib/types";
-import { toast } from "sonner";
 
-interface MemeDialogProps {
-  meme: ClientMeme;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-}
-
-export function MemeDialog({ meme, open, onOpenChange }: MemeDialogProps) {
-  const handleDownload = () => {
-    try {
-      const link = document.createElement("a");
-      link.href = `data:image/png;base64,${meme.image_data}`;
-      link.download = `veganmemes-${meme.id}.png`;
-      link.click();
-      toast.success("Image downloaded");
-    } catch (err) {
-      toast.error("Failed to download image");
-    }
-  };
-
-  const handleCopy = async () => {
-    try {
-      const blob = await fetch(`data:image/png;base64,${meme.image_data}`).then(r => r.blob());
-      await navigator.clipboard.write([
-        new ClipboardItem({ "image/png": blob })
-      ]);
-      toast.success("Image copied to clipboard");
-    } catch (err) {
-      toast.error("Failed to copy image");
-    }
-  };
+export function MemeDialog({ meme }: { meme: ClientMeme }) {
+  const copy = useCopyImage(meme);
+  const download = useDownloadImage(meme);
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={store.memeDialog}>
       <DialogContent className="max-w-4xl p-0">
         <div className="flex flex-col md:flex-row">
           {/* Image section */}
@@ -77,7 +51,6 @@ export function MemeDialog({ meme, open, onOpenChange }: MemeDialogProps) {
                 </p>
               </div>
 
-              {/* Space for future metadata */}
               <div className="flex-1" />
 
               {/* Action buttons */}
@@ -85,7 +58,7 @@ export function MemeDialog({ meme, open, onOpenChange }: MemeDialogProps) {
                 <Button
                   variant="outline"
                   className="flex-1"
-                  onClick={handleCopy}
+                  onClick={copy}
                 >
                   <Copy className="h-4 w-4 mr-2" />
                   Copy
@@ -93,7 +66,7 @@ export function MemeDialog({ meme, open, onOpenChange }: MemeDialogProps) {
                 <Button
                   variant="outline"
                   className="flex-1"
-                  onClick={handleDownload}
+                  onClick={download}
                 >
                   <Download className="h-4 w-4 mr-2" />
                   Download

@@ -42,8 +42,8 @@ export interface ClientMeme {
   ocr_text: string;
   user_id: string | null;
   created_at: Date;
-  like_count?: number;
-  is_liked?: boolean;
+  like_count: number;
+  is_liked: boolean;
 }
 
 export type Meme = Selectable<MemeTable>;

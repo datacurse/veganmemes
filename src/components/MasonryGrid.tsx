@@ -1,65 +1,103 @@
-// File: app/components/MasonryGrid.tsx
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { MemeCard } from "@/components/MemeCard";
-import { ClientMeme } from "@/lib/queries";
+import { useEffect, useMemo } from "react";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { useInView } from "react-intersection-observer";
+import { authClient } from "@/lib/auth-client";
+import * as queries from "@/lib/queries";
+import { MemeCard } from "./MemeCard";
+import { useWindowSize } from "@/hooks/useWindowSize";
+import { useSnapshot } from "valtio";
+import { store } from "@/store";
+import { ClientMeme } from "@/lib/types";
 
-interface MasonryGridProps {
-  memes: ClientMeme[];
-}
+export function MasonryGrid() {
+  const snap = useSnapshot(store);
 
-export function MasonryGrid({ memes }: MasonryGridProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [columns, setColumns] = useState<ClientMeme[][]>([]);
-  const [columnCount, setColumnCount] = useState(4);
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
+    queryKey: ['memes', snap.query, snap.filter],
+    queryFn: async ({ pageParam }) => {
+      const session = await authClient.getSession();
+      const data = queries.listMemes(
+        snap.query,
+        pageParam,
+        snap.filter,
+        session.data?.user?.id
+      );
+      return data
+    },
+    getNextPageParam: (lastPage) => lastPage.nextCursor,
+    initialPageParam: null as string | null,
+  });
 
-  // ── responsive column count ─────────────────────────────
+  const { ref: loadMoreRef, inView } = useInView({
+    threshold: 0,
+    rootMargin: '200px', // Start loading 200px before the element is visible
+  });
+
+  console.log(inView)
+
   useEffect(() => {
-    function updateColumnCount() {
-      const w = window.innerWidth;
-      if (w < 640) setColumnCount(2);
-      else if (w < 768) setColumnCount(3);
-      else if (w < 1024) setColumnCount(4);
-      else if (w < 1280) setColumnCount(5);
-      else if (w < 1536) setColumnCount(6);
-      else setColumnCount(7);
+    console.log(inView, hasNextPage, !isFetchingNextPage)
+    if (inView && hasNextPage && !isFetchingNextPage) {
+      console.log("Sentinel in view, fetching next page...");
+      fetchNextPage();
     }
+  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-    updateColumnCount();
-    window.addEventListener("resize", updateColumnCount);
-    return () => window.removeEventListener("resize", updateColumnCount);
-  }, []);
+  // Get all memes from pages
+  const allMemes = useMemo(
+    () => data?.pages.flatMap(page => page.items) ?? [],
+    [data]
+  );
 
-  // ── distribute memes across columns ─────────────────────
-  useEffect(() => {
-    if (memes.length === 0) {
-      setColumns([]);
-      return;
-    }
+  // Responsive columns with masonry distribution
+  const { width } = useWindowSize();
+  const columns = useMemo(() => {
+    // const columnCount = width < 640 ? 2 : width < 768 ? 3 : width < 1024 ? 4 : 4;
+    const columnCount = 2
 
-    const newColumns: ClientMeme[][] = Array.from({ length: columnCount }, () => []);
+    if (allMemes.length === 0) return Array(columnCount).fill([] as ClientMeme[]);
+
+    const cols: ClientMeme[][] = Array.from({ length: columnCount }, () => []);
     const heights = new Array(columnCount).fill(0);
 
-    memes.forEach((meme) => {
-      const i = heights.indexOf(Math.min(...heights));
-      newColumns[i]?.push(meme);
-      // quick-and-dirty estimated height
-      heights[i] += 250 + Math.random() * 200;
+    allMemes.forEach((meme) => {
+      const shortestColumn = heights.indexOf(Math.min(...heights));
+      cols[shortestColumn]!.push(meme);
+      heights[shortestColumn] += 250 + Math.random() * 200;
     });
 
-    setColumns(newColumns);
-  }, [memes, columnCount]);
+    return cols;
+  }, [allMemes, width]);
 
   return (
-    <div ref={containerRef} className="flex gap-4" style={{ minHeight: "200px" }}>
-      {columns.map((col, i) => (
-        <div key={i} className="flex-1 flex flex-col gap-4">
-          {col.map((meme) => (
-            <MemeCard key={meme.id} meme={meme} />
-          ))}
+    <>
+      <div className="flex gap-4" style={{ minHeight: "200px" }}>
+        {columns.map((col, i) => (
+          <div key={i} className="flex-1 flex flex-col gap-4">
+            {col.map((meme) => (
+              <MemeCard key={meme.id} meme={meme} />
+            ))}
+          </div>
+        ))}
+      </div>
+
+      {isFetchingNextPage && (
+        <div className="text-center py-8">
+          <div className="inline-flex items-center gap-2 text-muted-foreground">
+            <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+            Loading more memes…
+          </div>
         </div>
-      ))}
-    </div>
+      )}
+
+      <div ref={loadMoreRef} className="h-10 bg-red-500" />
+    </>
   );
 }

@@ -11,6 +11,7 @@ export async function listMemes(
   filter: FilterType = "all",
   userId?: string | null
 ) {
+  const cardsPerPage = 10
   let baseQuery = db
     .selectFrom('memes')
     .select([
@@ -42,7 +43,7 @@ export async function listMemes(
   }
 
   // Apply ordering and pagination
-  let query = baseQuery.orderBy('memes.created_at', 'desc').limit(30);
+  let query = baseQuery.orderBy('memes.created_at', 'desc').limit(cardsPerPage);
 
   if (cursor) {
     query = query.where('memes.created_at', '<', new Date(cursor));
@@ -74,8 +75,9 @@ export async function listMemes(
   }));
 
   const lastItem = items[items.length - 1];
-  const nextCursor = items.length === 30 && lastItem?.created_at ? lastItem.created_at.toISOString() : null;
+  const nextCursor = items.length === cardsPerPage && lastItem?.created_at ? lastItem.created_at.toISOString() : null;
 
+  console.log("listMemes")
   return { items: clientItems, nextCursor };
 }
 
