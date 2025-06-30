@@ -15,6 +15,7 @@
     "convert-images": "tsx scripts/convertImagesToPng.ts"
   },
   "dependencies": {
+    "@egjs/react-infinitegrid": "^4.12.0",
     "@radix-ui/react-avatar": "^1.1.10",
     "@radix-ui/react-dialog": "^1.1.14",
     "@radix-ui/react-slot": "^1.2.3",
@@ -26,6 +27,7 @@
     "dotenv": "^16.5.0",
     "kysely": "^0.28.2",
     "lucide-react": "^0.516.0",
+    "masonic": "^4.1.0",
     "pg": "^8.16.2",
     "react": "19.1.0",
     "react-dom": "19.1.0",

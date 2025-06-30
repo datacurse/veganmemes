@@ -7,11 +7,13 @@ export type FilterType = "all" | "liked";
 
 export async function listMemes(
   text: string,
-  cursor: string | null,
+  page: number,
   filter: FilterType = "all",
   userId?: string | null
 ) {
-  const cardsPerPage = 10
+  const cardsPerPage = 10;
+  const offset = (page - 1) * cardsPerPage; // Calculate the offset
+
   let baseQuery = db
     .selectFrom('memes')
     .select([
@@ -42,12 +44,8 @@ export async function listMemes(
     );
   }
 
-  // Apply ordering and pagination
-  let query = baseQuery.orderBy('memes.created_at', 'desc').limit(cardsPerPage);
-
-  if (cursor) {
-    query = query.where('memes.created_at', '<', new Date(cursor));
-  }
+  // Apply ordering, offset, and limit for pagination
+  let query = baseQuery.orderBy('memes.created_at', 'desc').limit(cardsPerPage).offset(offset);
 
   const items = await query.execute();
 
@@ -74,11 +72,10 @@ export async function listMemes(
     is_liked: likedMemeIds.has(item.id)
   }));
 
-  const lastItem = items[items.length - 1];
-  const nextCursor = items.length === cardsPerPage && lastItem?.created_at ? lastItem.created_at.toISOString() : null;
+  const nextPage = items.length === cardsPerPage ? page + 1 : null; // Determine the next page number
 
-  console.log("listMemes")
-  return { items: clientItems, nextCursor };
+  console.log("listMemes");
+  return { items: clientItems, nextPage };
 }
 
 export async function createMeme(

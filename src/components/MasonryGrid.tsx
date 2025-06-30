@@ -14,12 +14,7 @@ import { ClientMeme } from "@/lib/types";
 export function MasonryGrid() {
   const snap = useSnapshot(store);
 
-  const {
-    data,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-  } = useInfiniteQuery({
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery({
     queryKey: ['memes', snap.query, snap.filter],
     queryFn: async ({ pageParam }) => {
       const session = await authClient.getSession();
@@ -31,23 +26,17 @@ export function MasonryGrid() {
       );
       return data
     },
-    getNextPageParam: (lastPage) => lastPage.nextCursor,
-    initialPageParam: null as string | null,
+    getNextPageParam: (lastPage) => lastPage.nextPage,
+    initialPageParam: 1,
   });
 
-  const { ref: loadMoreRef, inView } = useInView({
+  const { ref: sentinelRef, inView } = useInView({
     threshold: 0,
-    rootMargin: '200px', // Start loading 200px before the element is visible
+    rootMargin: '200px',
   });
-
-  console.log(inView)
 
   useEffect(() => {
-    console.log(inView, hasNextPage, !isFetchingNextPage)
-    if (inView && hasNextPage && !isFetchingNextPage) {
-      console.log("Sentinel in view, fetching next page...");
-      fetchNextPage();
-    }
+    if (inView && hasNextPage && !isFetchingNextPage) fetchNextPage();
   }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   // Get all memes from pages
@@ -97,7 +86,6 @@ export function MasonryGrid() {
         </div>
       )}
 
-      <div ref={loadMoreRef} className="h-10 bg-red-500" />
-    </>
+      {hasNextPage && <div ref={sentinelRef} className="h-10" />}   </>
   );
 }
