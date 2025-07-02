@@ -4,10 +4,8 @@ import { Toaster } from "@/components/ui/sonner";
 import { SearchBar } from "@/components/SearchBar";
 import { UploadDialog } from "@/components/UploadDialog";
 import { NavBar } from "@/components/NavBar";
-import { MasonryGrid } from "@/components/MasonryGrid";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import SomeComponent from "@/components/SomeComponent";
-import Masonic from "@/components/Masonic";
+import { Masonic } from "@/components/Masonic";
 
 const queryClient = new QueryClient()
 
@@ -25,8 +23,6 @@ export default function HomePage() {
           </div>
         </div>
         <div className="max-w-7xl mx-auto px-4 py-6">
-          {/* <MasonryGrid /> */}
-          {/* <SomeComponent /> */}
           <Masonic />
         </div>
         <Toaster />

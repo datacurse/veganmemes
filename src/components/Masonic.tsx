@@ -1,97 +1,118 @@
-import { useEffect, useState, useMemo } from 'react';
-import { Masonry, useInfiniteLoader } from "masonic";
+import { useEffect, useState, useMemo, useCallback } from 'react';
+import { Masonry, useInfiniteLoader } from 'masonic';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { useSnapshot } from 'valtio';
 import { store } from '@/store';
 import { authClient } from '@/lib/auth-client';
-import * as queries from "@/lib/queries";
+import * as queries from '@/lib/queries';
 import { MemeCard } from './MemeCard';
 import { ClientMeme } from '@/lib/types';
 
-const MasonicWrapper = () => {
+export function Masonic() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => setMounted(true), []);
-
   if (!mounted) return null;
 
   return <MasonryContent />;
-};
+}
 
-const MasonryContent = () => {
+function MasonryContent() {
   const snap = useSnapshot(store);
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, error } = useInfiniteQuery({
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    isError,
+  } = useInfiniteQuery({
     queryKey: ['memes', snap.query, snap.filter],
-    queryFn: async ({ pageParam }) => {
+    queryFn: async ({ pageParam = 1 }) => {
       const session = await authClient.getSession();
-      return queries.listMemes(snap.query, pageParam, snap.filter, session.data?.user?.id);
+      return queries.listMemes(
+        snap.query,
+        pageParam,
+        snap.filter,
+        session.data?.user?.id
+      );
     },
     getNextPageParam: (lastPage) => lastPage.nextPage,
     initialPageParam: 1,
   });
 
-  const memes = useMemo(() => data?.pages.flatMap(page => page.items) ?? [], [data?.pages]);
-
-  const maybeLoadMore = useInfiniteLoader(
-    async () => {
-      if (hasNextPage && !isFetchingNextPage) await fetchNextPage();
-    },
-    {
-      isItemLoaded: (index, items) => !!items[index],
-      threshold: 10,
-      minimumBatchSize: 20,
-      totalItems: hasNextPage ? 9999999 : memes.length,
-    }
+  const memes = useMemo(
+    () => data?.pages.flatMap((page) => page.items) ?? [],
+    [data?.pages]
   );
 
+  const loadMore = useCallback(async () => {
+    if (hasNextPage && !isFetchingNextPage) {
+      await fetchNextPage();
+    }
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  // just use actual memes array, no placeholders
+  const items = memes;
+
+  const maybeLoadMore = useInfiniteLoader(loadMore, {
+    isItemLoaded: (index) => index < memes.length,
+    threshold: 10,
+    minimumBatchSize: 20,
+    totalItems: hasNextPage ? memes.length + 1 : memes.length,
+  });
+
   if (isLoading) return <LoadingMessage message="Loading memes..." />;
-  if (error) return <ErrorMessage />;
-  if (!memes.length) return <NoMemesMessage />;
+  if (isError) return <ErrorMessage />;
+  if (memes.length === 0) return <NoMemesMessage />;
 
   return (
     <div>
       <Masonry
-        items={memes}
-        render={MasonryMemeCard}
+        items={items}
+        render={renderItem}
         columnGutter={16}
-        columnWidth={300}
-        maxColumnCount={6}
+        columnWidth={240}
+        maxColumnCount={4}
         itemHeightEstimate={400}
         overscanBy={2}
         onRender={maybeLoadMore}
         itemKey={(meme) => meme.id}
       />
-      {isFetchingNextPage && <LoadingMessage message="Loading more memes..." />}
+      {isFetchingNextPage && (
+        <div className="mt-4">
+          <LoadingMessage message="Loading more memes..." />
+        </div>
+      )}
     </div>
   );
-};
+}
 
-const LoadingMessage = ({ message }) => (
-  <div className="flex justify-center items-center h-64">
-    <div className="text-lg">{message}</div>
-  </div>
-);
-
-const ErrorMessage = () => (
-  <div className="flex justify-center items-center h-64">
-    <div className="text-lg text-red-500">Error loading memes</div>
-  </div>
-);
-
-const NoMemesMessage = () => (
-  <div className="flex justify-center items-center h-64">
-    <div className="text-lg text-gray-500">No memes found</div>
-  </div>
-);
-
-function MasonryMemeCard({ index, data, width }: { index: number, data: ClientMeme, width: number }) {
-  // Add a return statement here to return the JSX
+function LoadingMessage({ message }: { message: string }) {
   return (
-    <div>
-      <MemeCard meme={data} />
+    <div className="flex justify-center items-center h-64">
+      <div className="text-lg">{message}</div>
     </div>
   );
-};
+}
 
-export default MasonicWrapper;
+function ErrorMessage() {
+  return (
+    <div className="flex justify-center items-center h-64">
+      <div className="text-lg text-red-500">Error loading memes</div>
+    </div>
+  );
+}
+
+function NoMemesMessage() {
+  return (
+    <div className="flex justify-center items-center h-64">
+      <div className="text-lg text-gray-500">No memes found</div>
+    </div>
+  );
+}
+
+function renderItem({ index, data: meme, width }: { index: number; data: ClientMeme; width: number; }) {
+  return <MemeCard meme={meme} />;
+}
