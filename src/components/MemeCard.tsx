@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { ClientMeme } from "@/lib/types";
 import { useCopyImage } from "@/hooks/useCopyImage";
 import { useDownloadImage } from "@/hooks/useDownloadImage";
+import { toggleLike } from "@/store";
 
 export function MemeCard({ meme }: { meme: ClientMeme }) {
   const copy = useCopyImage(meme);
@@ -30,12 +31,12 @@ export function MemeCard({ meme }: { meme: ClientMeme }) {
     } else {
       setLikeCount((prevCount) => prevCount - 1);
     }
+    toggleLike(meme.id, newLikedState)
   };
 
   const handleCardClick = () => {
     // Set the active meme and then show the dialog
     store.activeMeme = meme;
-    store.memeDialog = true;
   };
 
   return (

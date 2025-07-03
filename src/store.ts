@@ -10,7 +10,6 @@ export const store = proxy({
   uploading: false,
   uploadFile: null as File | null,
   uploadText: '',
-  memeDialog: false as boolean,
   activeMeme: null as ClientMeme | null,
   memes: [] as ClientMeme[],
 });
@@ -55,29 +54,19 @@ export function findMeme(memeId: number) {
   return store.pages.flatMap(page => page.items).find(m => m.id === memeId);
 } */
 
-export async function toggleLike(meme: ClientMeme) {
-  // Ensure we have a session or trigger GitHub login
+export async function toggleLike(id: number, isLiking: boolean) {
   const { data: session } = await authClient.getSession();
   if (!session?.user) {
     await authClient.signIn.social({ provider: "github" });
     return;
   }
-
-  const isLiking = !meme.is_liked;
-
   try {
     if (isLiking) {
-      await likeMeme(meme.id, session.user.id);
+      await likeMeme(id, session.user.id);
     } else {
-      await unlikeMeme(meme.id, session.user.id);
+      await unlikeMeme(id, session.user.id);
     }
-
-    // Update local state
-    meme.is_liked = isLiking;
-    meme.like_count += isLiking ? 1 : -1;
-    if (meme.like_count < 0) meme.like_count = 0;
-
   } catch (err: any) {
-    if (!err.message.includes("Already liked this meme")) throw err;
+    throw err;
   }
 }

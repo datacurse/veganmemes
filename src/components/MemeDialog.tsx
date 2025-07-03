@@ -19,14 +19,11 @@ export function MemeDialog({ meme }: { meme: ClientMeme }) {
   const download = useDownloadImage(meme);
 
   const handleOpenChange = (isOpen: boolean) => {
-    store.memeDialog = isOpen;
-    if (!isOpen) {
-      store.activeMeme = null;
-    }
+    if (!isOpen) store.activeMeme = null;
   };
 
   return (
-    <Dialog open={snap.memeDialog} onOpenChange={handleOpenChange}>
+    <Dialog open={snap.activeMeme !== null} onOpenChange={handleOpenChange}>
       {/* The onInteractOutside prop has been removed from DialogContent */}
       <DialogContent className="max-w-4xl p-0">
         <div className="flex flex-col md:flex-row">
