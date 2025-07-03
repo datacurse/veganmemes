@@ -53,9 +53,6 @@ function MasonryContent() {
     }
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  // just use actual memes array, no placeholders
-  const items = memes;
-
   const maybeLoadMore = useInfiniteLoader(loadMore, {
     isItemLoaded: (index) => index < memes.length,
     threshold: 10,
@@ -70,7 +67,7 @@ function MasonryContent() {
   return (
     <div>
       <Masonry
-        items={items}
+        items={memes}
         render={renderItem}
         columnGutter={16}
         columnWidth={240}

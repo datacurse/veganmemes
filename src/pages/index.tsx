@@ -6,10 +6,16 @@ import { UploadDialog } from "@/components/UploadDialog";
 import { NavBar } from "@/components/NavBar";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Masonic } from "@/components/Masonic";
+import { useSnapshot } from "valtio";
+import { store } from "@/store";
+import { MemeDialog } from "@/components/MemeDialog"; // Import the dialog
 
 const queryClient = new QueryClient()
 
 export default function HomePage() {
+  // Subscribe to the store to get the active meme
+  const snap = useSnapshot(store);
+
   return (
     <QueryClientProvider client={queryClient}>
       <div className="min-h-screen bg-background">
@@ -26,6 +32,9 @@ export default function HomePage() {
           <Masonic />
         </div>
         <Toaster />
+
+        {/* Conditionally render the single dialog here */}
+        {snap.activeMeme && <MemeDialog meme={snap.activeMeme} />}
       </div>
     </QueryClientProvider>
   );

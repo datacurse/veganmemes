@@ -1,5 +1,6 @@
 "use client";
 import { Download, Copy } from "lucide-react";
+import { useSnapshot } from "valtio";
 import {
   Dialog,
   DialogContent,
@@ -12,11 +13,20 @@ import { useCopyImage, useDownloadImage } from "@/hooks";
 import { ClientMeme } from "@/lib/types";
 
 export function MemeDialog({ meme }: { meme: ClientMeme }) {
+  const snap = useSnapshot(store);
   const copy = useCopyImage(meme);
   const download = useDownloadImage(meme);
 
+  const handleOpenChange = (isOpen: boolean) => {
+    store.memeDialog = isOpen;
+    if (!isOpen) {
+      store.activeMeme = null;
+    }
+  };
+
   return (
-    <Dialog open={store.memeDialog}>
+    <Dialog open={snap.memeDialog} onOpenChange={handleOpenChange}>
+      {/* The onInteractOutside prop has been removed from DialogContent */}
       <DialogContent className="max-w-4xl p-0">
         <div className="flex flex-col md:flex-row">
           {/* Image section */}
@@ -36,12 +46,16 @@ export function MemeDialog({ meme }: { meme: ClientMeme }) {
 
             <div className="mt-6 space-y-4 flex-1">
               <div>
-                <h3 className="text-sm font-medium text-muted-foreground mb-2">OCR Text</h3>
+                <h3 className="text-sm font-medium text-muted-foreground mb-2">
+                  OCR Text
+                </h3>
                 <p className="text-sm">{meme.ocr_text || "No text detected"}</p>
               </div>
 
               <div>
-                <h3 className="text-sm font-medium text-muted-foreground mb-2">Created</h3>
+                <h3 className="text-sm font-medium text-muted-foreground mb-2">
+                  Created
+                </h3>
                 <p className="text-sm">
                   {new Date(meme.created_at).toLocaleDateString("en-US", {
                     year: "numeric",
@@ -55,11 +69,7 @@ export function MemeDialog({ meme }: { meme: ClientMeme }) {
 
               {/* Action buttons */}
               <div className="flex gap-2 pt-4">
-                <Button
-                  variant="outline"
-                  className="flex-1"
-                  onClick={copy}
-                >
+                <Button variant="outline" className="flex-1" onClick={copy}>
                   <Copy className="h-4 w-4 mr-2" />
                   Copy
                 </Button>

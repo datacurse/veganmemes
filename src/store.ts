@@ -11,6 +11,7 @@ export const store = proxy({
   uploadFile: null as File | null,
   uploadText: '',
   memeDialog: false as boolean,
+  activeMeme: null as ClientMeme | null,
   memes: [] as ClientMeme[],
 });
 
