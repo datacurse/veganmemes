@@ -8,8 +8,9 @@ import { store } from "@/store";
 import { Button } from "@/components/ui/button";
 // We no longer render the dialog here, so remove the import
 // import { MemeDialog } from "./MemeDialog"; 
-import { useCopyImage, useDownloadImage } from "@/hooks";
 import { ClientMeme } from "@/lib/types";
+import { useCopyImage } from "@/hooks/useCopyImage";
+import { useDownloadImage } from "@/hooks/useDownloadImage";
 
 export function MemeCard({ meme }: { meme: ClientMeme }) {
   const copy = useCopyImage(meme);

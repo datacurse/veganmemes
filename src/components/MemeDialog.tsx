@@ -9,8 +9,9 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { store } from "@/store";
-import { useCopyImage, useDownloadImage } from "@/hooks";
 import { ClientMeme } from "@/lib/types";
+import { useCopyImage } from "@/hooks/useCopyImage";
+import { useDownloadImage } from "@/hooks/useDownloadImage";
 
 export function MemeDialog({ meme }: { meme: ClientMeme }) {
   const snap = useSnapshot(store);
