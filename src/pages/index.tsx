@@ -4,16 +4,14 @@ import { Toaster } from "@/components/ui/sonner";
 import { SearchBar } from "@/components/SearchBar";
 import { UploadDialog } from "@/components/UploadDialog";
 import { NavBar } from "@/components/NavBar";
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { QueryClientProvider } from '@tanstack/react-query'
 import { Masonic } from "@/components/Masonic";
 import { useSnapshot } from "valtio";
 import { store } from "@/store";
-import { MemeDialog } from "@/components/MemeDialog"; // Import the dialog
-
-const queryClient = new QueryClient()
+import { MemeDialog } from "@/components/MemeDialog";
+import { queryClient } from "@/lib/query-client";
 
 export default function HomePage() {
-  // Subscribe to the store to get the active meme
   const snap = useSnapshot(store);
 
   return (
@@ -32,8 +30,6 @@ export default function HomePage() {
           <Masonic />
         </div>
         <Toaster />
-
-        {/* Conditionally render the single dialog here */}
         {snap.activeMeme && <MemeDialog />}
       </div>
     </QueryClientProvider>
