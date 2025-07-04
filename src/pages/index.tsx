@@ -34,7 +34,7 @@ export default function HomePage() {
         <Toaster />
 
         {/* Conditionally render the single dialog here */}
-        {snap.activeMeme && <MemeDialog meme={snap.activeMeme} />}
+        {snap.activeMeme && <MemeDialog />}
       </div>
     </QueryClientProvider>
   );

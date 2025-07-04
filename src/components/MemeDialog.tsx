@@ -1,89 +1,57 @@
 "use client";
-import { Download, Copy } from "lucide-react";
+
+import { useEffect } from "react";
 import { useSnapshot } from "valtio";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { store } from "@/store";
-import { ClientMeme } from "@/lib/types";
-import { useCopyImage } from "@/hooks/useCopyImage";
-import { useDownloadImage } from "@/hooks/useDownloadImage";
 
-export function MemeDialog({ meme }: { meme: ClientMeme }) {
+// This custom component no longer needs props.
+// It gets the active meme directly from the global store.
+export function MemeDialog() {
   const snap = useSnapshot(store);
-  const copy = useCopyImage(meme);
-  const download = useDownloadImage(meme);
+  const activeMeme = snap.activeMeme;
 
-  const handleOpenChange = (isOpen: boolean) => {
-    if (!isOpen) store.activeMeme = null;
+  const handleClose = () => {
+    store.activeMeme = null;
   };
 
+  // Add keyboard support for closing the dialog with the 'Escape' key.
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        handleClose();
+      }
+    };
+
+    if (activeMeme) {
+      document.addEventListener("keydown", handleKeyDown);
+    }
+
+    // Clean up the event listener when the component unmounts or the dialog closes.
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [activeMeme]);
+
+  // If no meme is active, render nothing.
+  if (!activeMeme) {
+    return null;
+  }
+
   return (
-    <Dialog open={snap.activeMeme !== null} onOpenChange={handleOpenChange}>
-      {/* The onInteractOutside prop has been removed from DialogContent */}
-      <DialogContent className="max-w-4xl p-0">
-        <div className="flex flex-col md:flex-row">
-          {/* Image section */}
-          <div className="md:w-1/2 bg-muted p-4 flex items-center justify-center">
-            <img
-              src={`data:image/png;base64,${meme.image_data}`}
-              alt={meme.ocr_text.slice(0, 100)}
-              className="max-w-full max-h-[70vh] object-contain rounded-lg"
-            />
-          </div>
-
-          {/* Details section */}
-          <div className="md:w-1/2 p-6 flex flex-col">
-            <DialogHeader>
-              <DialogTitle>Meme Details</DialogTitle>
-            </DialogHeader>
-
-            <div className="mt-6 space-y-4 flex-1">
-              <div>
-                <h3 className="text-sm font-medium text-muted-foreground mb-2">
-                  OCR Text
-                </h3>
-                <p className="text-sm">{meme.ocr_text || "No text detected"}</p>
-              </div>
-
-              <div>
-                <h3 className="text-sm font-medium text-muted-foreground mb-2">
-                  Created
-                </h3>
-                <p className="text-sm">
-                  {new Date(meme.created_at).toLocaleDateString("en-US", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })}
-                </p>
-              </div>
-
-              <div className="flex-1" />
-
-              {/* Action buttons */}
-              <div className="flex gap-2 pt-4">
-                <Button variant="outline" className="flex-1" onClick={copy}>
-                  <Copy className="h-4 w-4 mr-2" />
-                  Copy
-                </Button>
-                <Button
-                  variant="outline"
-                  className="flex-1"
-                  onClick={download}
-                >
-                  <Download className="h-4 w-4 mr-2" />
-                  Download
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </DialogContent>
-    </Dialog>
+    // The full-screen overlay. Clicking it will close the lightbox.
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-32 animate-in fade-in-0"
+      onClick={handleClose}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Meme Lightbox"
+    >
+      {/* The image itself. We let the click event bubble up to the overlay to close it. */}
+      <img
+        src={`data:image/png;base64,${activeMeme.image_data}`}
+        alt={activeMeme.ocr_text.slice(0, 100)}
+        className="block max-w-full max-h-full object-contain rounded-lg"
+      />
+    </div>
   );
 }
