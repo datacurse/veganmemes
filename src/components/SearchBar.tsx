@@ -18,18 +18,11 @@ export function SearchBar() {
       return;
     }
 
-    // Toggle between "all" and "liked"
     store.filter = store.filter === "liked" ? "all" : "liked";
-    // search();
+    store.submittedQuery = store.query;
   };
 
-  const handleSearch = () => {
-    // Reset to "all" filter when doing a new search
-    if (store.filter === "liked" && snap.query !== store.query) {
-      store.filter = "all";
-    }
-    // search();
-  };
+  const handleSearch = () => store.submittedQuery = store.query;
 
   return (
     <div className="flex items-center gap-2 flex-1 max-w-2xl">

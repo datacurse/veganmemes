@@ -28,11 +28,11 @@ function MasonryContent() {
     isLoading,
     isError,
   } = useInfiniteQuery({
-    queryKey: ['memes', snap.query, snap.filter],
+    queryKey: ['memes', snap.submittedQuery, snap.filter],
     queryFn: async ({ pageParam = 1 }) => {
       const session = await authClient.getSession();
       return queries.listMemes(
-        snap.query,
+        snap.submittedQuery,
         pageParam,
         snap.filter,
         session.data?.user?.id
@@ -63,10 +63,11 @@ function MasonryContent() {
   if (isLoading) return <LoadingMessage message="Loading memes..." />;
   if (isError) return <ErrorMessage />;
   if (memes.length === 0) return <NoMemesMessage />;
-
+  const masonryKey = `${snap.submittedQuery}-${snap.filter}`;
   return (
     <div>
       <Masonry
+        key={masonryKey}
         items={memes}
         render={renderItem}
         columnGutter={16}

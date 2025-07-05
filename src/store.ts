@@ -7,6 +7,7 @@ import { queryClient } from '@/lib/query-client'
 
 export const store = proxy({
   query: '',
+  submittedQuery: '',
   filter: 'all' as FilterType,
   uploading: false,
   uploadFile: null as File | null,
@@ -24,7 +25,6 @@ export async function upload(file: File, ocr: string) {
       ocr,
       session.data?.user?.id
     );
-    // Refresh the list after upload
     await queryClient.invalidateQueries({ queryKey: ['memes'] })
   } finally {
     store.uploading = false;
